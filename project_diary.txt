@@ -18,6 +18,12 @@ features selected: 'month',
                     'PCA_price_energy_1', 
                     'PCA_price_energy_2'
                 
+
+2026-09-30
+worked on 004_Prediction_dataset_generation.ipynb
+adapted the notebook to the selected variables
+
+
 NEXT STEPS: 
 - explore 004 verions notebooks
 - define future months dataset
