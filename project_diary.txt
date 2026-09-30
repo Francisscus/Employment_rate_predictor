@@ -24,7 +24,8 @@ worked on 004_Prediction_dataset_generation.ipynb
 adapted the notebook to the selected variables
 
 
+
 NEXT STEPS: 
-- explore 004 verions notebooks
+- reatrain the model with the variable working days on the notebook 003_SARIMAX_baseline.ipynb and in case it improve performances create a new variable in 004 verions notebooks
 - define future months dataset
 - pickle the model 
