@@ -24,8 +24,14 @@ worked on 004_Prediction_dataset_generation.ipynb
 adapted the notebook to the selected variables
 
 
+2026-10-01
+worked on 002_data_cleaner.ipynb and 003_SARIMAX_baseline.ipynb
+- working_day_diff doesn't improve model performances
+
+worked on cleaning and readapting  005_FINAL_PREDICTION_SARIMAX.ipynb
+
+
 
 NEXT STEPS: 
-- reatrain the model with the variable working days on the notebook 003_SARIMAX_baseline.ipynb and in case it improve performances create a new variable in 004 verions notebooks
 - define future months dataset
 - pickle the model 
