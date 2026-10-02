@@ -30,8 +30,14 @@ worked on 002_data_cleaner.ipynb and 003_SARIMAX_baseline.ipynb
 
 worked on cleaning and readapting  005_FINAL_PREDICTION_SARIMAX.ipynb
 
+2026-10-02:
+started working to 006_TEST.ipynb:
+- start copying-pasting only necessary code from data sources to prediction into one notebook to create a pipeline
 
 
 NEXT STEPS: 
+- conclude the copying-pasting code in 006_TEST
 - define future months dataset
 - pickle the model 
+- organize the README for Github
+- define the deployment phase activities (find and online place where to store the model (databricks?/ Github Actions?)Create APIs with Flask/FastAPI, containerization with Docke)
