@@ -34,11 +34,11 @@ worked on cleaning and readapting  005_FINAL_PREDICTION_SARIMAX.ipynb
 started working to 006_TEST.ipynb:
 - start copying-pasting only necessary code from data sources to prediction into one notebook to create a pipeline
 
-
 2026-10-08:
 - extracted time series since 2024-01 to 2026-01 to ingest in the training dataset. Before the timeframe was shorter from 2013-01 to 2026-01
 - created notebook 003_SARIMAX_baseline_6_months.ipynb to train model to predict following 6 months. Shorter than initial 12 months
 - created notebook 003_ARIMA_baseline_6_months.ipynb to train model to predict following 6 months. Shorter than initial 12 months
+- retrained 4 notebooks version 003 with data from 2005-03 to 2026-01
 
 
 
