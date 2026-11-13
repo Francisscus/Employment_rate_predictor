@@ -41,8 +41,10 @@ started working to 006_TEST.ipynb:
 - retrained 4 notebooks version 003 with data from 2005-03 to 2026-01
 
 2026-11-13:
-- putting in order notebooks and datasets in specific folders
+- reorganized notebooks and datasets in specific folders
 - started creating production ready .py files
+- created preprocessing.py file
+- started training.ipynb file
 
 NEXT STEPS: 
 - conclude the copying-pasting code in 006_TEST
