@@ -356,19 +356,25 @@ def preprocessing():
                                 'unemployment rate (Y15-64)': 'unemployment_rate', 
                                 'activity rate (Y15-64)': 'activity_rate' }, inplace =True)
 
+        final_df['date'] = pd.to_datetime(final_df['date'])
+        final_df['month'] = final_df['data'].dt.month
 
         final_df = final_df[['date', 
-                        'workforce', 'inactives',
-                        'employment_rate', 
-                        'activity_rate', 'unemployment_rate', 
-                        'industry_production_prices', 
-                        'companies_trust', 
-                        'gasoline_price', 
-                        'diesel_price', 
-                        'GPL_price', 
-                        'diesel_heatining_price']]
+                             'month',
+                            'workforce', 
+                            'inactives',
+                            'employment_rate', 
+                            'activity_rate', 
+                            'unemployment_rate', 
+                            'industry_production_prices', 
+                            'companies_trust', 
+                            'gasoline_price', 
+                            'diesel_price', 
+                            'GPL_price', 
+                            'diesel_heatining_price']]
 
-        final_df[['employment_rate', 'activity_rate', 'unemployment_rate']] = final_df[['employment_rate', 'activity_rate', 'unemployment_rate']].round(2)
+        final_df[['employment_rate', 'activity_rate', 'unemployment_rate']] = final_df[['employment_rate', 
+                                                                                        'activity_rate', 'unemployment_rate']].round(2)
 
         return final_df
 
@@ -386,6 +392,7 @@ def cleaning(df):
     df['industry_production_prices'] = df['industry_production_prices'].fillna(meadian_ind_price )
 
     list_selected = ['date', 
+                        'month',
                         'workforce', 
                         'inactives', 
                         'employment_rate',
@@ -433,6 +440,7 @@ def check_stationarity(df):
 
 def select_cols_and_rolling(df):
     columns_selected = ['date',   
+                        'month',
                         'workforce_diff', 
                         'inactives_diff',  
                         'employment_rate_diff', 

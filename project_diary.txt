@@ -47,7 +47,7 @@ started working to 006_TEST.ipynb:
 - started training.ipynb file
 
 NEXT STEPS: 
-- conclude the copying-pasting code in 006_TEST
+- per la parte di dataset da forecastare in deployment dovrai generare il dataset --> usa una media mobile standard
 - define future months dataset
 - pickle the model 
 - organize the README for Github
