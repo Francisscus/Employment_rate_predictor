@@ -5,6 +5,7 @@ from io import StringIO
 from functools import reduce
 import time 
 from datetime import datetime
+from pathlib import Path
 
 from tqdm.auto import tqdm
 
@@ -203,7 +204,6 @@ def unemployment_rate(start_year_month, end_year_month):
 
 
 
-
 def extract_inactives_data(start_year_month, end_year_month):
     df = API_calling(start_date = start_year_month, end_date = end_year_month, dataflow = "IT1,152_879_DF_DCCV_INATTIVMENS1_1")
 
@@ -232,7 +232,6 @@ def extract_inactives_data(start_year_month, end_year_month):
 
 
 
-
 def industry_production_prices(start_year_month, end_year_month):
     df = API_calling(start_date = start_year_month, end_date = end_year_month, dataflow = "IT1,145_360_DF_DCSC_PREZZPIND_1_4")
 
@@ -241,8 +240,6 @@ def industry_production_prices(start_year_month, end_year_month):
     df_industry_production_prices.drop('index', axis=1, inplace= True)
 
     return df_industry_production_prices
-
-
 
 
 def extract_services_production_prices(start_year_month, end_year_month):
@@ -254,8 +251,6 @@ def extract_services_production_prices(start_year_month, end_year_month):
     df_services_production_prices.drop('index', axis=1, inplace= True)
 
     return df_services_production_prices
-
-
 
 
 def extract_companies_trust(start_year_month, end_year_month):
@@ -464,7 +459,6 @@ def select_cols_and_rolling(df):
 
 
 
-
 def generate_PCA(df):
     df_merged_detrended = df.iloc[13:].copy() # questo serve a togliere le prime 13 righe che hanno dei valori NUll
 
@@ -472,11 +466,9 @@ def generate_PCA(df):
 
     X_price_energy = df_merged_detrended[[ 'gasoline_price_diff', 'diesel_price_diff', 'GPL_price', 'diesel_heatining_price_diff']]
 
-
     scaler = StandardScaler()
     X_labour_market_scaled = scaler.fit_transform(X_labour_market)
     X_price_energy_scaled = scaler.fit_transform(X_price_energy)
-
 
     pca = PCA(n_components=2)
     df_merged_detrended[['PCA_labour_market_1', 'PCA_labour_market_2']] = pca.fit_transform(X_labour_market_scaled)
@@ -485,27 +477,58 @@ def generate_PCA(df):
     return df_merged_detrended
 
 
+def predicting_forecast_dataset(df,selected_cols ):
+    from statsmodels.tsa.arima.model import ARIMA
+    import warnings
+    warnings.filterwarnings('ignore')
 
-df = preprocessing()
+    df_fcst = pd.DataFrame()
+
+    for feature in selected_cols:
+
+        h = 12
+        model = ARIMA( endog=df[feature]
+                    , order=(0, 0, 13))
+
+        res = model.fit()
+        df_fcst[f'{feature}_fcst'] = res.forecast(steps = h)
 
 
-path = "../datasets/"
-df_to_csv = df.copy()
-df_to_csv.to_csv(f"{path}dataset_preprocessed.csv", index= False)
+    return df_fcst
 
 
-df_preprocessed = pd.read_csv(f"{path}dataset_forecast.csv")
+if __name__ == "__main__":
+    df = preprocessing()
+    path = Path(__file__).resolve().parent.parent / "datasets"
+    path.mkdir(exist_ok=True)
+    df_to_csv = df.copy()
+    df_to_csv.to_csv(path / "dataset_preprocessed.csv", index= False)
+    # df_preprocessed = pd.read_csv(path / "dataset_forecast.csv")
+    df_preprocessed = cleaning(df)
+    print('\n--cleaned--')
+    df_preprocessed = check_stationarity(df_preprocessed)
+    print('\n--stationary--')
+    df_preprocessed = select_cols_and_rolling(df_preprocessed)
+    print('\n--rollings--')
+    df_preprocessed = generate_PCA(df_preprocessed)
+    print('\n--PCA--')
+    df_preprocessed.to_csv(path / "dataset_training.csv", index = False)
 
-df_preprocessed = cleaning(df)
+    selected_cols = [#'month', 
+                    'employment_rate_diff', 
+                    'industry_production_prices_diff',
+                    'companies_trust',  
+                    'rolling_mean_6m',
+                    'rolling_mean_12m', 
+                    'PCA_labour_market_1',
+                    'PCA_labour_market_2', 
+                    'PCA_price_energy_1', 
+                    'PCA_price_energy_2'
+                    ]
+    df_input_forecast = predicting_forecast_dataset(df_preprocessed,selected_cols )
 
-df_preprocessed = check_stationarity(df_preprocessed)
-
-df_preprocessed = select_cols_and_rolling(df_preprocessed)
-
-df_preprocessed = generate_PCA(df_preprocessed)
-
-df_preprocessed.to_csv(f"{path}dataset_training.csv")
-
+    df_input_forecast.to_csv(path / "dataset_input_forecast.csv", index = False)
+    print("Finished!")
 
 
 
