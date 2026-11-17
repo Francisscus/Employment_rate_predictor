@@ -357,7 +357,7 @@ def preprocessing():
                                 'activity rate (Y15-64)': 'activity_rate' }, inplace =True)
 
         final_df['date'] = pd.to_datetime(final_df['date'])
-        final_df['month'] = final_df['data'].dt.month
+        final_df['month'] = final_df['date'].dt.month
 
         final_df = final_df[['date', 
                              'month',
