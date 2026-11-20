@@ -9,6 +9,8 @@ from pathlib import Path
 
 from tqdm.auto import tqdm
 
+from config import exogenous_variables, DATA_DIR
+
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 
@@ -19,8 +21,6 @@ warnings.filterwarnings('ignore')
 
 start_year_month = '2013-01'
 end_year_month = '2026-07'
-
-
 
 
 def API_calling(dataflow, start_date = start_year_month, end_date = end_year_month):
@@ -514,18 +514,19 @@ if __name__ == "__main__":
     print('\n--PCA--')
     df_preprocessed.to_csv(path / "dataset_training.csv", index = False)
 
-    selected_cols = [#'month', 
-                    'employment_rate_diff', 
-                    'industry_production_prices_diff',
-                    'companies_trust',  
-                    'rolling_mean_6m',
-                    'rolling_mean_12m', 
-                    'PCA_labour_market_1',
-                    'PCA_labour_market_2', 
-                    'PCA_price_energy_1', 
-                    'PCA_price_energy_2'
-                    ]
-    df_input_forecast = predicting_forecast_dataset(df_preprocessed,selected_cols )
+    # selected_cols = [#'month', 
+    #                 'employment_rate_diff', 
+    #                 'industry_production_prices_diff',
+    #                 'companies_trust',  
+    #                 'rolling_mean_6m',
+    #                 'rolling_mean_12m', 
+    #                 'PCA_labour_market_1',
+    #                 'PCA_labour_market_2', 
+    #                 'PCA_price_energy_1', 
+    #                 'PCA_price_energy_2'
+    #                 ]
+    print(f'the variables are: {exogenous_variables}')
+    df_input_forecast = predicting_forecast_dataset(df_preprocessed,exogenous_variables )
 
     df_input_forecast.to_csv(path / "dataset_input_forecast.csv", index = False)
     print("Finished!")
