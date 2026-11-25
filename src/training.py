@@ -60,7 +60,7 @@ def model(df,selected_cols ):
 
 if __name__ == "__main__":
     # path = '../datasets/'
-    df = pd.read_csv(DATA_DIR / "dataset_training.csv")
+    df = pd.read_csv(DATA_DIR / "dataset_preprocessed.csv")
     print("funziona 1")
     # df = pd.read_csv(f"{path}/dataset_training.csv")
     df_final, results = model(df, exogenous_variables)
@@ -71,6 +71,6 @@ if __name__ == "__main__":
         pickle.dump({'model': results, 'selected_cols': exogenous_variables}, f)
 
     print("model DONE")
-    df_final.to_csv(DATA_DIR /  "dataset_predicion.csv")
+    df_final.to_csv(DATA_DIR /  "dataset_prediction.csv")
     print("prediction DONE")
 

@@ -19,11 +19,12 @@ warnings.filterwarnings('ignore')
 
 
 
-start_year_month = '2013-01'
-end_year_month = '2026-07'
+# start_year_month = '2013-01'
+# end_year_month = '2026-07'
 
 
-def API_calling(dataflow, start_date = start_year_month, end_date = end_year_month):
+# def API_calling(dataflow, start_date = start_year_month, end_date = end_year_month):
+def API_calling(dataflow, start_date, end_date):
     # API endpoint and dataset
     base = "https://esploradati.istat.it/SDMXWS/rest/data"
     # dataflow = "IT1,150_875"
@@ -59,8 +60,6 @@ def API_calling(dataflow, start_date = start_year_month, end_date = end_year_mon
 
 
 
-
-
 def extract_emplyoment_data(start_year_month, end_year_month):
       df = API_calling(start_date = start_year_month, end_date = end_year_month, dataflow = "IT1,150_875_DF_DCCV_OCCUPATIMENS1_1")
 
@@ -90,7 +89,6 @@ def extract_emplyoment_data(start_year_month, end_year_month):
       df_employment_pivoted.drop('index', axis = 1, inplace = True)#
 
       return df_employment_pivoted
-
 
 
 
@@ -284,7 +282,7 @@ def get_fuel_prices(fuel_type: str, start_year: int):
 
 
 
-def preprocessing():
+def retrieving_data( start_year_month , end_year_month ):
 
         df_employment_pivoted  = extract_emplyoment_data(start_year_month, end_year_month)
         print("DONE 1 df_employment_pivoted")
@@ -334,15 +332,15 @@ def preprocessing():
 
         df6 = pd.merge(df5, df_industry_production_prices, on='date', how='outer')
 
-        df8 = pd.merge(df6, df_gasoline_car_price, on='date', how='inner')
+        df7 = pd.merge(df6, df_gasoline_car_price, on='date', how='inner')
 
-        df9 = pd.merge(df8, df_diesel_price, on='date', how='inner')
+        df8 = pd.merge(df7, df_diesel_price, on='date', how='inner')
 
-        df10 = pd.merge(df9, df_GPL_price, on='date', how='inner')
+        df9 = pd.merge(df8, df_GPL_price, on='date', how='inner')
 
-        df11 = pd.merge(df10, df_diesel_heatining_price, on='date', how='inner')
+        df10 = pd.merge(df9, df_diesel_heatining_price, on='date', how='inner')
 
-        final_df = pd.merge(df11, df_companies_trust, on='date', how='inner')
+        final_df = pd.merge(df10, df_companies_trust, on='date', how='inner')
 
         final_df.rename(columns = {'workforce (Y15-64)': 'workforce', 
                                 'inactives (Y15-64)': 'inactives',
@@ -410,7 +408,6 @@ def cleaning(df):
 
 
 
-
 def check_stationarity(df):
     non_stationary_cols = [
                     'workforce',
@@ -429,7 +426,6 @@ def check_stationarity(df):
         df[f'{col}_diff'] = df[col] - df[col].shift( 1) # qui facciamo subito la differnziazione
 
     return df
-
 
 
 
@@ -458,7 +454,6 @@ def select_cols_and_rolling(df):
     return df
 
 
-
 def generate_PCA(df):
     df_merged_detrended = df.iloc[13:].copy() # questo serve a togliere le prime 13 righe che hanno dei valori NUll
 
@@ -477,10 +472,28 @@ def generate_PCA(df):
     return df_merged_detrended
 
 
+def preprocessing(df):
+    df_preprocessed = cleaning(df)
+    print('\n--cleaned--')
+    df_stationary = check_stationarity(df_preprocessed)
+    print('\n--stationary--')
+    df_rolled = select_cols_and_rolling(df_stationary)
+    print('\n--rollings--')
+    df_pca = generate_PCA(df_rolled)
+    print('\n--PCA--')    
+
+    return df_pca
+
+
+
 def predicting_forecast_dataset(df,selected_cols ):
     from statsmodels.tsa.arima.model import ARIMA
     import warnings
     warnings.filterwarnings('ignore')
+
+    df["date"] = pd.to_datetime(df["date"])
+    df = df.set_index("date")
+    df.index.name = None    
 
     df_fcst = pd.DataFrame()
 
@@ -493,40 +506,30 @@ def predicting_forecast_dataset(df,selected_cols ):
         res = model.fit()
         df_fcst[f'{feature}_fcst'] = res.forecast(steps = h)
 
+    df_fcst['month'] = df_fcst.index.month    
+
+    df_fcst = df_fcst[['month', 'employment_rate_diff_fcst', 'industry_production_prices_diff_fcst',
+                        'companies_trust_fcst', 'rolling_mean_6m_fcst', 'rolling_mean_12m_fcst',
+                        'PCA_labour_market_1_fcst', 'PCA_labour_market_2_fcst',
+                        'PCA_price_energy_1_fcst', 'PCA_price_energy_2_fcst']]
 
     return df_fcst
 
 
 if __name__ == "__main__":
-    df = preprocessing()
+    start_year_month = '2003-01'
+    end_year_month = '2026-07'
+    df = retrieving_data( start_year_month, end_year_month)
     path = Path(__file__).resolve().parent.parent / "datasets"
     path.mkdir(exist_ok=True)
     df_to_csv = df.copy()
-    df_to_csv.to_csv(path / "dataset_preprocessed.csv", index= False)
-    # df_preprocessed = pd.read_csv(path / "dataset_forecast.csv")
-    df_preprocessed = cleaning(df)
-    print('\n--cleaned--')
-    df_preprocessed = check_stationarity(df_preprocessed)
-    print('\n--stationary--')
-    df_preprocessed = select_cols_and_rolling(df_preprocessed)
-    print('\n--rollings--')
-    df_preprocessed = generate_PCA(df_preprocessed)
-    print('\n--PCA--')
-    df_preprocessed.to_csv(path / "dataset_training.csv", index = False)
+    df_to_csv.to_csv(path / "dataset_raw.csv", index= False)
+   
+    df_training = preprocessing(df)
+    df_training.to_csv(path / "dataset_preprocessed.csv", index = False)
 
-    # selected_cols = [#'month', 
-    #                 'employment_rate_diff', 
-    #                 'industry_production_prices_diff',
-    #                 'companies_trust',  
-    #                 'rolling_mean_6m',
-    #                 'rolling_mean_12m', 
-    #                 'PCA_labour_market_1',
-    #                 'PCA_labour_market_2', 
-    #                 'PCA_price_energy_1', 
-    #                 'PCA_price_energy_2'
-    #                 ]
     print(f'the variables are: {exogenous_variables}')
-    df_input_forecast = predicting_forecast_dataset(df_preprocessed,exogenous_variables )
+    df_input_forecast = predicting_forecast_dataset(df_training,exogenous_variables )
 
     df_input_forecast.to_csv(path / "dataset_input_forecast.csv", index = False)
     print("Finished!")

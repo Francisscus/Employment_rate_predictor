@@ -46,9 +46,16 @@ started working to 006_TEST.ipynb:
 - created preprocessing.py file
 - started training.ipynb file
 
+2026-11-23:
+- iniziato il file di deploy.ipynb
+
+2026-11-24:
+- sistemato il mese nella funzione che genera il dataset di input usato dal modello per il forecast
+- generato il dataset_raw con i dati disponibili dal 2006
+
 NEXT STEPS: 
-- per la parte di dataset da forecastare in deployment dovrai generare il dataset --> usa una media mobile standard
-- define future months dataset
-- pickle the model 
-- organize the README for Github
-- define the deployment phase activities (find and online place where to store the model (databricks?/ Github Actions?)Create APIs with Flask/FastAPI, containerization with Docke)
+- RIPARTI DA deply.ipynb e genera il dataset di imput con i mesi
+- mettere le funzioni di preprocessing in una funzione main() e 
+    definire una data per creare start e end date
+- run preprocessing since 2004 to generate date for the dataset
+- Create 
